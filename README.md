@@ -16,7 +16,7 @@ Supports:
 ## Installation
 
 ```sh
-go get -u github.com/ybbus/jsonrpc
+go get -u github.com/iGiant/kerio-api
 ```
 
 ## Getting started
@@ -25,20 +25,21 @@ Then we want to save this person after we changed a property.
 (Error handling is omitted here)
 
 ```go
-type Person struct {
-    Id   int `json:"id"`
-    Name string `json:"name"`
-    Age  int `json:"age"`
-}
 
 func main() {
-    rpcClient := jsonrpc.NewClient("http://my-rpc-service:8080/rpc")
+    rpcClient := kerio.NewClient("https://you-kerio-server:port/admin/api/jsonrpc/")
 
-    var person *Person
-    rpcClient.CallFor(&person, "getPersonById", 4711)
-
-    person.Age = 33
-    rpcClient.Call("updatePerson", person)
+    app := kerio.Application{
+	Name: "AppName",
+	Vendor: "AppVendor",
+	Version: "0.0.1",
+	}
+    rpcClient.Login(login, password, app)
+    resp, err := rpcClient.Call("Session.whoAmI", map[string]interface{}{})
+    if err != nil {
+	fmt.Println(err)
+    }
+    fmt.Println(resp.Result)
 }
 ```
 
