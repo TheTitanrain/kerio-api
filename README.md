@@ -1,8 +1,4 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/ybbus/jsonrpc)](https://goreportcard.com/report/github.com/ybbus/jsonrpc)
-[![GoDoc](https://godoc.org/github.com/ybbus/jsonrpc?status.svg)](https://godoc.org/github.com/ybbus/jsonrpc)
-[![GitHub license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
-
-# JSON-RPC 2.0 Client for golang
+# JSON-RPC 2.0 Client for Kerio API (golang)
 A go implementation of an rpc client using json as data format over http.
 The implementation is based on the JSON-RPC 2.0 specification: http://www.jsonrpc.org/specification
 
