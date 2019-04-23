@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"my.work/kerio/connect/client"
 	"net/http"
 	"net/http/cookiejar"
 	"reflect"
@@ -21,7 +22,7 @@ const (
 // RPCClient is created using the factory function NewClient().
 type RPCClient interface {
 	// Login is needed to get the token
-	Login(login, password string, app Application) error
+	Login(login, password string, app client.ApiApplication) error
 	// Call is used to send a JSON-RPC request to the server endpoint.
 	//
 	// The spec states, that params can only be an array or an object, no primitive values.
@@ -169,6 +170,7 @@ func NewRequest(method string, params ...interface{}) *RPCRequest {
 		Method:  method,
 		Params:  Params(params...),
 		JSONRPC: jsonrpcVersion,
+		ID:      1,
 	}
 
 	return request
@@ -232,6 +234,7 @@ type rpcClient struct {
 	endpoint      string
 	httpClient    *http.Client
 	token         string
+	id            int
 	customHeaders map[string]string
 }
 
@@ -243,13 +246,6 @@ type rpcClient struct {
 type RPCClientOpts struct {
 	HTTPClient    *http.Client
 	CustomHeaders map[string]string
-}
-
-// Application contains a description of the application.
-type Application struct {
-	Name    string
-	Vendor  string
-	Version string
 }
 
 // RPCResponses is of type []*RPCResponse.
@@ -308,6 +304,7 @@ func NewClientWithOpts(endpoint string, opts *RPCClientOpts) RPCClient {
 	rpcClient := &rpcClient{
 		endpoint:      endpoint,
 		token:         "",
+		id:            1,
 		httpClient:    &http.Client{Jar: jar},
 		customHeaders: make(map[string]string),
 	}
@@ -329,17 +326,18 @@ func NewClientWithOpts(endpoint string, opts *RPCClientOpts) RPCClient {
 	return rpcClient
 }
 
-func (client *rpcClient) Login(login, password string, app Application) error {
+func (client *rpcClient) Login(login, password string, app client.ApiApplication) error {
 	request := &RPCRequest{
 		Method: "Session.login",
 		Params: map[string]interface{}{
 			"userName":    login,
 			"password":    password,
 			"application": map[string]string{"name": app.Name, "vendor": app.Vendor, "version": app.Version},
-			},
+		},
 		JSONRPC: jsonrpcVersion,
-
+		ID:      client.id,
 	}
+	client.id++
 	rpcResponse, err := client.doCall(request)
 	if err != nil {
 		return err
@@ -359,7 +357,9 @@ func (client *rpcClient) Call(method string, params ...interface{}) (*RPCRespons
 		Method:  method,
 		Params:  Params(params...),
 		JSONRPC: jsonrpcVersion,
+		ID:      client.id,
 	}
+	client.id++
 	if client.token != "" {
 		request.TOKEN = client.token
 	}
