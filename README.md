@@ -21,11 +21,16 @@ Then we want to save this person after we changed a property.
 (Error handling is omitted here)
 
 ```go
+import (
+	"fmt"
+	"github.com/iGiant/kerio-api"
+	"github.com/iGiant/kerio-api/connect/client"
+)
 
 func main() {
-    rpcClient := kerio.NewClient("https://you-kerio-server:port/admin/api/jsonrpc/")
+    rpcClient := kerio.NewClient("https://you-kerio-server:port/webmail/api/jsonrpc/")
 
-    app := kerio.Application{
+    app := kerio.ApiApplication{
 	Name: "AppName",
 	Vendor: "AppVendor",
 	Version: "0.0.1",
@@ -35,7 +40,11 @@ func main() {
     if err != nil {
 	fmt.Println(err)
     }
-    fmt.Println(resp.Result)
+    var ui client.OutUserInfo
+    
+    resp.GetObject(&ui)
+    
+    fmt.Println(ui.UserDetails.LoginName)
 }
 ```
 
