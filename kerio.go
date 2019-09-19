@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"my.work/kerio/connect/client"
 	"net/http"
 	"net/http/cookiejar"
 	"reflect"
